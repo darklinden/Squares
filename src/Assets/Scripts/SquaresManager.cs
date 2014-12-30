@@ -79,7 +79,7 @@ public class SquaresManager : MonoBehaviour {
 //		//Camera.main.transform.position = new Vector3(fieldWidth/2, fieldHeight/2, -16.0f);
 //		
 
-		CreateBlock(0);
+		CreateBlock(1);
 	}
 	
 	// Update is called once per frame

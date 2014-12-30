@@ -8,6 +8,7 @@ public class Square : MonoBehaviour {
 	public string[] page2 = {"0000", "0000", "0000", "0000"};
 	public string[] page3 = {"0000", "0000", "0000", "0000"};
 	public string[] page4 = {"0000", "0000", "0000", "0000"};
+
 	private bool[,,] squareMatrix;
 
 	private float halfSize;
@@ -17,7 +18,7 @@ public class Square : MonoBehaviour {
 	private int yPosition;
 	private int zPosition;
 	private float fallSpeed;
-	private bool drop = false;
+	private Color cubeColor;
 
 	enum SquareRotate : int {
 		SquareRotateX,
@@ -32,7 +33,11 @@ public class Square : MonoBehaviour {
 		Dbg.Assert (size >= 2, "Square must have at least two pages");
 
 		Dbg.Assert(size > SquaresManager.manager.maxBlockSize, "Blocks must not be larger than " + SquaresManager.manager.maxBlockSize);
-		
+
+		Color [] colorpool = {Color.black, Color.blue, Color.cyan, Color.gray,
+			Color.green, Color.grey, Color.magenta, Color.red, Color.white, Color.yellow };
+		cubeColor = colorpool [Random.Range (0, colorpool.Length)];
+
 		halfSize = (size + 1) * .5f;
 		childSize = (size - 1) * .5f;
 		halfSizeFloat = size * .5f;
@@ -45,44 +50,40 @@ public class Square : MonoBehaviour {
 					case 0:
 					{
 						if (page1 [y] [x] == '1') {
-							
 							squareMatrix [z, y, x] = true;
-							var cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
-							
 						}
 					}
 						break;
 					case 1:
 					{
 						if (page2 [y] [x] == '1') {
-							
 							squareMatrix [z, y, x] = true;
-							var cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
-							
 						}
 					}
 						break;
 					case 2:
 					{
 						if (page3 [y] [x] == '1') {
-							
 							squareMatrix [z, y, x] = true;
-							var cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
-							
 						}
 					}
 						break;
 					case 3:
 					{
 						if (page4 [y] [x] == '1') {
-							
 							squareMatrix [z, y, x] = true;
-							var cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
-							
 						}
 					}
 						break;
@@ -104,32 +105,20 @@ public class Square : MonoBehaviour {
 //		}
 		
 		StartCoroutine(CheckInput());
-		StartCoroutine(Delay((1 / SquaresManager.manager.blockNormalFallSpeed) * 2));
-		StartCoroutine(Fall());
+//		StartCoroutine(Fall());
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
 	}
-	
-	IEnumerator Delay(float time){
-		var t = 0f;
-		while (t <= time && !drop){
-			t += Time.deltaTime;
-			yield return null;
-		}
-	}
-	
+
 	IEnumerator Fall(){
 		while(true){
 
-			if (yPosition > 0) {
-				yPosition--;
-			}
-			else {
-				yield break;
-			}
+			Debug.Log("yPosition:"+ yPosition);
+			yPosition--;
+			
 
 //			if (SquaresManager.manager.CheckBlock(squareMatrix, 0, xPosition, yPosition)){
 //				SquaresManager.manager.SetBlock(squareMatrix, 0, xPosition, yPosition + 1);
@@ -138,6 +127,8 @@ public class Square : MonoBehaviour {
 //			}
 			
 			for (float i = yPosition + 1;i > yPosition;i -= Time.deltaTime * fallSpeed){
+
+				Debug.Log("i: "+ i + " fallSpeed: " + fallSpeed);
 				transform.position = new Vector3(transform.position.x, i - childSize, transform.position.z);
 				/*foreach(Transform child in transform){
 					print(child.transform.position);
@@ -159,42 +150,104 @@ public class Square : MonoBehaviour {
 			yield return new WaitForSeconds(.1f);
 //		}
 	}
+
+	void DebugSquare(Vector3 pos) {
+		return;
+		for (int z = 0; z < size; z++) {
+			for (int y = 0; y < size; y++) {
+				for (int x = 0; x < size; x++) {
+					GameObject t = GameObject.Find ("z-" + z + "-y-" + y + "-x-" + x);
+
+					if (t) {
+						Destroy (t);
+					}
+
+					if (squareMatrix[z, y, x]) {
+						squareMatrix [z, y, x] = true;
+						Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (pos.x + x - childSize, pos.y + childSize - y, pos.z + z - childSize), Quaternion.identity);
+						cube.renderer.material.color = cubeColor;
+						cube.name = "z-" + z + "-y-" + y + "-x-" + x;
+					}
+				}
+			}
+		}
+	}
 	
 	void RotateSquare(SquareRotate rotate){
+
+		var tempMatrix = new bool[size, size, size];
 
 		switch (rotate) {
 		case SquareRotate.SquareRotateX:
 		{
 			transform.Rotate(90, 0, 0);
+
+			for (int x = 0; x < size; x++) {
+				for (int z = 0; z < size; z++) {
+					for (int y = 0; y < size; y++) {
+						tempMatrix[z, y, x] = squareMatrix[y, (size - 1) - z, x];
+					}
+				}
+			}
+
+			System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
+
+			DebugSquare(new Vector3(10, 28, 0));
 		}
 			break;
 		case SquareRotate.SquareRotateY:
 		{
 			transform.Rotate(0, 90, 0);
+			
+			for (int y = 0; y < size; y++) {
+				for (int z = 0; z < size; z++) {
+					for (int x = 0; x < size; x++) {
+						tempMatrix[z, y, x] = squareMatrix[x, y, (size - 1) - z];
+					}
+				}
+			}
+			
+			System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
+			
+			DebugSquare(new Vector3(10, 28, 0));
 		}
 			break;
 		case SquareRotate.SquareRotateZ:
 		{
 			transform.Rotate(0, 0, 90);
+			
+			for (int z = 0; z < size; z++) {
+				for (int y = 0; y < size; y++) {
+					for (int x = 0; x < size; x++) {
+						tempMatrix[z, y, x] = squareMatrix[z, x, (size - 1) - y];
+					}
+				}
+			}
+			
+			System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
+			
+			DebugSquare(new Vector3(10, 28, 0));
 		}
 			break;
 		case SquareRotate.SquareRotate4DX:
 		{
 			transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
+
+			for (int x = 0; x < size; x++) {
+				for (int z = 0; z < size; z++) {
+					for (int y = 0; y < size; y++) {
+						tempMatrix[z, y, x] = squareMatrix[z, y, (size - 1) - x];
+					}
+				}
+			}
+
+			System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
+			
+			DebugSquare(new Vector3(10, 28, 0));
 		}
 			break;
 		}
-		
-		var tempMatrix = new bool[size, size, size];
-		/*
-		for (int y = 0;y < size;y++){
-			for (int x = 0;x < size;x++){
-				tempMatrix[y, x] = blockMatrix[x, y];
-				print(tempMatrix[y, x] + " ");
-			}
-		    print("\n");
-		}*/
-		
+
 //	    for (int y = 0; y < size; y++) {
 //		     for (int x = 0; x < size; x++) {
 //		          tempMatrix[0, y, x] = squareMatrix[0, x, (size-1)-y];
@@ -278,51 +331,32 @@ public class Square : MonoBehaviour {
 				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.W)){
+			if (Input.GetKeyUp(KeyCode.Space)) {
+				if (fallSpeed == SquaresManager.manager.blockNormalFallSpeed) {
+					fallSpeed = SquaresManager.manager.blockDropSpeed;
+				}
+				else {
+					fallSpeed = SquaresManager.manager.blockNormalFallSpeed;
+				}
+			}
+
+			if (Input.GetKeyDown(KeyCode.W)) {
 				RotateSquare(SquareRotate.SquareRotate4DX);
 			}
 
-			if (Input.GetKeyDown(KeyCode.S)){
+			if (Input.GetKeyDown(KeyCode.S)) {
 				RotateSquare(SquareRotate.SquareRotateY);
 			}
 
-			if (Input.GetKeyDown(KeyCode.A)){
+			if (Input.GetKeyDown(KeyCode.A)) {
 				RotateSquare(SquareRotate.SquareRotateX);
 			}
 
-			if (Input.GetKeyDown(KeyCode.D)){
+			if (Input.GetKeyDown(KeyCode.D)) {
 				RotateSquare(SquareRotate.SquareRotateZ);
 			}
 
-//			var input = Input.GetAxisRaw("Horizontal");
-//			if (input < 0){
-//				yield return StartCoroutine(MoveSquare(-1));
-//			}
-//			
-//			if (input > 0){
-//				yield return StartCoroutine(MoveSquare(1));
-//			}
-//			
-//			if (Input.GetKeyDown(KeyCode.UpArrow)){
-//				RotateBlock();
-//			}
-//			
-//			if (Input.GetKeyDown(KeyCode.DownArrow)){
-//				fallSpeed = SquaresManager.manager.blockDropSpeed;
-//				drop = true;
-//				//break;
-//			}
-			
-//			if (Input.GetKeyUp("space")){
-//				RotateBlock();
-//				fallSpeed = SquaresManager.manager.blockNormalFallSpeed;
-//				drop = false;
-				//break;
-//			}
-			
 			yield return null;
-		}
-		
+		}	
 	}
-	
 }
