@@ -222,13 +222,13 @@ public class SquaresManager : MonoBehaviour {
 //		
 //	}
 //	
-//	public void GameOver(){
-//		if (Score > PlayerPrefs.GetInt("Highest")){
-//			PlayerPrefs.SetInt("Highest", Score);
-//		}
-//		print("Game Over!!!");
-//	}
-//	
+	public void GameOver(){
+		if (Score > PlayerPrefs.GetInt("Highest")){
+			PlayerPrefs.SetInt("Highest", Score);
+		}
+		print("Game Over!!!");
+	}
+
 	void OnGUI(){
 		GUI.Label(new Rect(180, 30, 80, 40),"Score:");
 		GUI.Label(new Rect(240, 30, 100, 40),Score.ToString());
