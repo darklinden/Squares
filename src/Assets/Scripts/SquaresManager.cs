@@ -5,8 +5,12 @@ public class SquaresManager : MonoBehaviour {
 	
 	public GameObject[] blocks;
 	public Transform cube;
+	public Transform ground;
 	public Transform leftWall;
 	public Transform rightWall;
+	public Transform frontWall;
+	public Transform backWall;
+
 	public int maxBlockSize = 4;
 	public int _fieldWidth = 10;
 	public int _fieldHeight = 13;
@@ -19,6 +23,10 @@ public class SquaresManager : MonoBehaviour {
 	private bool[,,] fields;
 	private int[] cubeYposition;
 	private Transform[] cubeTransforms;
+	private float xOffset;
+	private float yOffset;
+	private float zOffset;
+
 	private int clearTimes;
 	private float addSpeed = .3f;
 	private int TimeToAddSpeed = 10;
@@ -49,31 +57,43 @@ public class SquaresManager : MonoBehaviour {
 		
 		blockRandom = Random.Range(0, blocks.Length);
 //		
-//		fieldWidth = _fieldWidth + maxBlockSize * 2;
-//		fieldHeight = _fieldHeight + maxBlockSize;
-//		fields = new bool[fieldWidth, fieldWidth, fieldHeight];
-//		cubeYposition = new int[fieldHeight * fieldWidth];
-//		cubeTransforms = new Transform[fieldHeight * fieldWidth];
+		fieldWidth = _fieldWidth + 2;
+		fieldHeight = _fieldHeight + 1;
+		fields = new bool[fieldWidth, fieldHeight, fieldWidth];
+//		cubeYposition = new int[fieldWidth, fieldHeight, fieldWidth];
+//		cubeTransforms = new Transform[fieldWidth, fieldHeight, fieldWidth];
 //		
 
-//		bool[,] test = new bool[10, 34];;
-//		for (int i = 0;i < 34; i++){
-//			
-//			for (int j =0 ;j < 4; j++){
-//				
-//				test[j, i] = true;
-//				test[10 -1 - j, i] = true;
-//				
-//			}
-//			
-//		}
-//		
-//		for (int i=0;i<10;i++){
-//			test[i, 0] = true;
-//		}
-//
-//		Debug.Log ("what" + test);
-//		
+		for (int y = 0; y < fieldHeight; y++) {
+			for (int z = 0; z < fieldWidth; z++) {
+				for (int x = 0; x < fieldWidth; x++) {
+
+					fields [z, y, x] = true;
+
+					if (y == 0) {
+						fields[z, y, x] = false;
+					}
+					else {
+						if (x == 0 || x == fieldWidth - 1
+						    || z == 0 || z == fieldWidth - 1) {
+							fields[z, y, x] = false;
+						}
+					}
+
+				}
+			}
+		}
+
+		Debug.Log ("ground:" + ground.transform.position.y);
+		Debug.Log ("left:" + leftWall.transform.position.x);
+		Debug.Log ("right:" + rightWall.transform.position.x);
+		Debug.Log ("front:" + frontWall.transform.position.z);
+		Debug.Log ("back:" + backWall.transform.position.z);
+
+		xOffset = 5.0f;
+		yOffset = 0.5f;
+		zOffset = 5.0f; 
+
 //		//leftWall.position = new Vector3(maxBlockSize - .5f, leftWall.position.y, leftWall.position.z);
 //		//rightWall.position = new Vector3(fieldWidth - maxBlockSize + .5f, rightWall.position.y, rightWall.position.z);
 //		//Camera.main.transform.position = new Vector3(fieldWidth/2, fieldHeight/2, -16.0f);
@@ -84,18 +104,6 @@ public class SquaresManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-
-
-//		if (ca.animation.GetClip ("Top")) {
-//			if (!ca.animation.IsPlaying ("Top")) {
-//				ca.animation.RemoveClip("Top");
-//				ca.transform.position = new Vector3 (0, 35, 0);
-//				ca.transform.rotation = Quaternion.Euler (new Vector3 (90, 0, 0));
-//			}
-//		}
-
-
 	}
 
 	public int GetFieldWidth(){
@@ -119,31 +127,31 @@ public class SquaresManager : MonoBehaviour {
 //		nextblock = new string[nextSize];
 //		nextblock = nextB.size;
 	}
-//	
-//	
-//	public bool CheckBlock(bool [,,] blockMatrix, int zPos, int xPos, int yPos){
-//
-//		var size = blockMatrix.GetLength(0);
-//		/*
-//		for (int y=size-1;y>=0;y--){
-//			for (int x=0;x<size;x++){
-//				//print(xPos + " " + yPos + " " + blockMatrix[x, y] + " " + fields[xPos + x, yPos - y]);
-//				if (blockMatrix[x, y] && fields[xPos + x, yPos - y]){
-//					return true;
-//				}
-//			}
-//		}*/
-//		for (int z = 0; z < size; z++) {
-//						for (int y = 0; y < size; y++) {
-//								for (int x = 0; x < size; x++) {
-//										if (blockMatrix [z, y, x] && fields [zPos - z, xPos + x, yPos - y]) {
-//												return true;
-//										}
-//								}
-//						}
-//				}
-//		return false;
-//	}
+
+	public bool CheckTopOverlap(bool [,,] matrix, float zPos, float yPos, float xPos){
+
+		int size = matrix.GetLength(0);
+		int ix = Mathf.RoundToInt (xPos + xOffset);
+		int iy = Mathf.RoundToInt (yPos + yOffset);
+		int iz = Mathf.RoundToInt (zPos + zOffset);
+
+		for (int y = 0; y < size; y++) {
+			for (int z = 0; z < size; z++) {
+				for (int x = 0; x < size; x++) {
+					Debug.Log("z: " + z + " y: " + y + " x: " + x);
+					Debug.Log("zPos: " + zPos + " yPos: " + yPos + " xPos: " + xPos);
+					Debug.Log("iz: " + iz + " iy: " + iy + " ix: " + ix);
+//					Debug.Log("matrix: " + matrix[z, y, x] + " fields: " + fields[zPos - z, yPos - y, xPos - x]);
+
+//					if (blockMatrix [z, y, x] && fields [zPos - z, xPos + x, yPos - y]) {
+//						return true;
+//					}
+				}
+			}
+		}
+
+		return false;
+	}
 //	
 //		public void SetBlock(bool[,,] blockMatrix, int zPos, int xPos, int yPos){
 //		

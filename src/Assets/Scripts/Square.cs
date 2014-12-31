@@ -14,9 +14,9 @@ public class Square : MonoBehaviour {
 	private float halfSize;
 	private float halfSizeFloat;
 	private float childSize;
-	private int xPosition;
-	private int yPosition;
-	private int zPosition;
+	private float xPosition;
+	private float yPosition;
+	private float zPosition;
 	private float fallSpeed;
 	private Color cubeColor;
 
@@ -92,20 +92,21 @@ public class Square : MonoBehaviour {
 			}
 		}
 
-		yPosition = SquaresManager.manager.GetFieldHeight() - 1;
 		transform.position = new Vector3((SquaresManager.manager.GetFieldWidth() - size) / 2.0f, 
-		                                 yPosition - childSize, 
+		                                 SquaresManager.manager.GetFieldHeight() - childSize, 
 		                                 -(SquaresManager.manager.GetFieldWidth() - size) / 2.0f);
-		xPosition = (int)(transform.position.x - childSize);
+		xPosition = transform.position.x;
+		yPosition = transform.position.y;
+		zPosition = transform.position.z;
 		fallSpeed = SquaresManager.manager.blockNormalFallSpeed;
 		
-//		if (SquaresManager.manager.CheckBlock(squareMatrix, 0, xPosition, yPosition)){
-//			SquaresManager.manager.GameOver();
-//			return;
-//		}
+		if (SquaresManager.manager.CheckTopOverlap (squareMatrix, zPosition, yPosition, xPosition)){
+			SquaresManager.manager.GameOver();
+			return;
+		}
 		
 		StartCoroutine(CheckInput());
-//		StartCoroutine(Fall());
+		StartCoroutine(Fall());
 	}
 	
 	// Update is called once per frame
@@ -114,21 +115,21 @@ public class Square : MonoBehaviour {
 	}
 
 	IEnumerator Fall(){
-		while(true){
+		while (true){
 
 			Debug.Log("yPosition:"+ yPosition);
 			yPosition--;
-			
 
-//			if (SquaresManager.manager.CheckBlock(squareMatrix, 0, xPosition, yPosition)){
+#warning
+			if (SquaresManager.manager.CheckTopOverlap(squareMatrix, zPosition, yPosition, xPosition)){
 //				SquaresManager.manager.SetBlock(squareMatrix, 0, xPosition, yPosition + 1);
-//				Destroy(gameObject);
-//				break;
-//			}
+				Destroy(gameObject);
+				break;
+			}
 			
 			for (float i = yPosition + 1;i > yPosition;i -= Time.deltaTime * fallSpeed){
 
-				Debug.Log("i: "+ i + " fallSpeed: " + fallSpeed);
+//				Debug.Log("i: "+ i + " fallSpeed: " + fallSpeed);
 				transform.position = new Vector3(transform.position.x, i - childSize, transform.position.z);
 				/*foreach(Transform child in transform){
 					print(child.transform.position);
@@ -140,37 +141,36 @@ public class Square : MonoBehaviour {
 	}
 	
 	IEnumerator MoveSquare(int distanceX, int distanceZ){
-		
-//		if (!SquaresManager.manager.CheckBlock(squareMatrix, xPosition + distance, yPosition)){
+		if (!SquaresManager.manager.CheckTopOverlap(squareMatrix, zPosition + distanceZ, yPosition, xPosition + distanceX)){
 			transform.position = new Vector3(transform.position.x + distanceX, 
-		                                 transform.position.y,
-		                                 transform.position.z + distanceZ);
+			                                 transform.position.y,
+			                                 transform.position.z + distanceZ);
 			xPosition += distanceX;
-		zPosition += distanceZ;
+			zPosition += distanceZ;
 			yield return new WaitForSeconds(.1f);
-//		}
+		}
 	}
 
 	void DebugSquare(Vector3 pos) {
 		return;
-		for (int z = 0; z < size; z++) {
-			for (int y = 0; y < size; y++) {
-				for (int x = 0; x < size; x++) {
-					GameObject t = GameObject.Find ("z-" + z + "-y-" + y + "-x-" + x);
-
-					if (t) {
-						Destroy (t);
-					}
-
-					if (squareMatrix[z, y, x]) {
-						squareMatrix [z, y, x] = true;
-						Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (pos.x + x - childSize, pos.y + childSize - y, pos.z + z - childSize), Quaternion.identity);
-						cube.renderer.material.color = cubeColor;
-						cube.name = "z-" + z + "-y-" + y + "-x-" + x;
-					}
-				}
-			}
-		}
+//		for (int z = 0; z < size; z++) {
+//			for (int y = 0; y < size; y++) {
+//				for (int x = 0; x < size; x++) {
+//					GameObject t = GameObject.Find ("z-" + z + "-y-" + y + "-x-" + x);
+//
+//					if (t) {
+//						Destroy (t);
+//					}
+//
+//					if (squareMatrix[z, y, x]) {
+//						squareMatrix [z, y, x] = true;
+//						Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (pos.x + x - childSize, pos.y + childSize - y, pos.z + z - childSize), Quaternion.identity);
+//						cube.renderer.material.color = cubeColor;
+//						cube.name = "z-" + z + "-y-" + y + "-x-" + x;
+//					}
+//				}
+//			}
+//		}
 	}
 	
 	void RotateSquare(SquareRotate rotate){
@@ -254,9 +254,10 @@ public class Square : MonoBehaviour {
 //	         }
 //		}
 //		
-//		if (!SquaresManager.manager.CheckBlock(tempMatrix, xPosition, yPosition)){
-//			System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
-//		}
+#warning
+		if (!SquaresManager.manager.CheckTopOverlap(tempMatrix, zPosition, yPosition, xPosition)){
+			System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
+		}
 	}
 	
 	IEnumerator CheckInput(){
