@@ -1,5 +1,8 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections;  
+using System.Collections.Generic;  
+using System.IO;  
+using System.Text; 
 
 public class SquaresManager : MonoBehaviour {
 	
@@ -14,6 +17,7 @@ public class SquaresManager : MonoBehaviour {
 	public int maxBlockSize = 4;
 	public int _fieldWidth = 10;
 	public int _fieldHeight = 13;
+	public float cubeSizeWidth = 1.0f;
 	public float blockNormalFallSpeed = 2f;
 	public float blockDropSpeed = 30f;
 	public Texture2D cubeTexture;
@@ -21,15 +25,16 @@ public class SquaresManager : MonoBehaviour {
 	private int fieldWidth;
 	private int fieldHeight;
 	private bool[,,] fields;
+	private Dictionary<string, bool> posFields;
 	private int[] cubeYposition;
 	private Transform[] cubeTransforms;
-	private float xOffset;
-	private float yOffset;
-	private float zOffset;
+//	private float xOffset;
+//	private float yOffset;
+//	private float zOffset;
 
 	private int clearTimes;
-	private float addSpeed = .3f;
-	private int TimeToAddSpeed = 10;
+//	private float addSpeed = .3f;
+//	private int TimeToAddSpeed = 10;
 	
 	private int Score = 0;
 	private int Highest = 0;
@@ -58,31 +63,37 @@ public class SquaresManager : MonoBehaviour {
 		blockRandom = Random.Range(0, blocks.Length);
 //		
 		fieldWidth = _fieldWidth + 2;
-		fieldHeight = _fieldHeight + 1;
+		fieldHeight = _fieldHeight;
 		fields = new bool[fieldWidth, fieldHeight, fieldWidth];
 //		cubeYposition = new int[fieldWidth, fieldHeight, fieldWidth];
 //		cubeTransforms = new Transform[fieldWidth, fieldHeight, fieldWidth];
 //		
+		posFields = new Dictionary<string, bool> ();
 
-		for (int y = 0; y < fieldHeight; y++) {
-			for (int z = 0; z < fieldWidth; z++) {
-				for (int x = 0; x < fieldWidth; x++) {
-
-					fields [z, y, x] = true;
-
-					if (y == 0) {
-						fields[z, y, x] = false;
-					}
-					else {
-						if (x == 0 || x == fieldWidth - 1
-						    || z == 0 || z == fieldWidth - 1) {
-							fields[z, y, x] = false;
-						}
-					}
-
-				}
-			}
-		}
+//		for (int y = 0; y < fieldHeight; y++) {
+//			for (int z = 0; z < fieldWidth; z++) {
+//				for (int x = 0; x < fieldWidth; x++) {
+//
+//					string key = z + "-" + y + "-" + x;
+//					posFields[key] = false;
+//
+//					fields [z, y, x] = false;
+//
+//					if (y == 0) {
+//						posFields[key] = true;
+//						fields[z, y, x] = true;
+//					}
+//					else {
+//						if (x == 0 || x == fieldWidth - 1
+//						    || z == 0 || z == fieldWidth - 1) {
+//							posFields[key] = true;
+//							fields[z, y, x] = true;
+//						}
+//					}
+//
+//				}
+//			}
+//		}
 
 		Debug.Log ("ground:" + ground.transform.position.y);
 		Debug.Log ("left:" + leftWall.transform.position.x);
@@ -90,16 +101,46 @@ public class SquaresManager : MonoBehaviour {
 		Debug.Log ("front:" + frontWall.transform.position.z);
 		Debug.Log ("back:" + backWall.transform.position.z);
 
-		xOffset = 5.0f;
-		yOffset = 0.5f;
-		zOffset = 5.0f; 
+		for (float y = ground.transform.position.y; y < fieldHeight; y += 1f) {
+			for (float z = frontWall.transform.position.z; z < backWall.transform.position.z; z += 1f) {
+				for (float x = leftWall.transform.position.x; x < rightWall.transform.position.x; x += 1f) {
+
+					int ix = Mathf.FloorToInt(x);
+					int iy = Mathf.FloorToInt(y);
+					int iz = Mathf.FloorToInt(z);
+
+					string key = iz + "-" + iy + "-" + ix;
+					posFields[key] = false;
+//
+//					if (y == 0) {
+//						posFields[key] = true;
+//					}
+//					else {
+//						if (x == 0 || x == fieldWidth - 1
+//						    || z == 0 || z == fieldWidth - 1) {
+//							posFields[key] = true;
+//						}
+//					}
+				}
+			}
+		}
+
+//		Debug.Log ("posFields:");
+//		foreach (var it in posFields) {
+//			Debug.Log (it.Key + " - " + it.Value);
+//		}
+
+
+//		xOffset = 6.0f;
+//		yOffset = 0.5f;
+//		zOffset = 6.0f; 
 
 //		//leftWall.position = new Vector3(maxBlockSize - .5f, leftWall.position.y, leftWall.position.z);
 //		//rightWall.position = new Vector3(fieldWidth - maxBlockSize + .5f, rightWall.position.y, rightWall.position.z);
 //		//Camera.main.transform.position = new Vector3(fieldWidth/2, fieldHeight/2, -16.0f);
 //		
 
-		CreateBlock(1);
+		CreateBlock(2);
 	}
 	
 	// Update is called once per frame
@@ -128,24 +169,35 @@ public class SquaresManager : MonoBehaviour {
 //		nextblock = nextB.size;
 	}
 
-	public bool CheckTopOverlap(bool [,,] matrix, float zPos, float yPos, float xPos){
+	/*
+	 *  return true if overlaped
+	 */
+	public bool CheckSquareOverlap(bool [,,] matrix, float zPos, float yPos, float xPos){
 
 		int size = matrix.GetLength(0);
-		int ix = Mathf.RoundToInt (xPos + xOffset);
-		int iy = Mathf.RoundToInt (yPos + yOffset);
-		int iz = Mathf.RoundToInt (zPos + zOffset);
 
 		for (int y = 0; y < size; y++) {
 			for (int z = 0; z < size; z++) {
 				for (int x = 0; x < size; x++) {
-					Debug.Log("z: " + z + " y: " + y + " x: " + x);
-					Debug.Log("zPos: " + zPos + " yPos: " + yPos + " xPos: " + xPos);
-					Debug.Log("iz: " + iz + " iy: " + iy + " ix: " + ix);
-//					Debug.Log("matrix: " + matrix[z, y, x] + " fields: " + fields[zPos - z, yPos - y, xPos - x]);
 
-//					if (blockMatrix [z, y, x] && fields [zPos - z, xPos + x, yPos - y]) {
-//						return true;
-//					}
+					int ix = Mathf.FloorToInt (xPos + x - ((float)size * 0.5f));
+					int iy = Mathf.FloorToInt (yPos + y - ((float)size * 0.5f));
+					int iz = Mathf.FloorToInt (zPos + z - ((float)size * 0.5f));
+
+					string key = iz + "-" + iy + "-" + ix;
+
+					if (matrix [z, (size - 1) - y, x]) {
+
+						if (!posFields.ContainsKey(key)) {
+							Debug.Log("Position Out of Range: z: " + z + " y: " + y + " x: " + x + " iz: " + iz + " iy: " + iy + " ix: " + ix);
+							return true;
+						}
+
+						if (posFields [key]) {
+							Debug.Log("Position Overlaped: z: " + z + " y: " + y + " x: " + x + " iz: " + iz + " iy: " + iy + " ix: " + ix);
+							return true;
+						}
+					}
 				}
 			}
 		}
@@ -153,23 +205,34 @@ public class SquaresManager : MonoBehaviour {
 		return false;
 	}
 //	
-//		public void SetBlock(bool[,,] blockMatrix, int zPos, int xPos, int yPos){
-//		
-//		int size = blockMatrix.GetLength(0);
-//		for (int y = 0;y < size;y++){
-//			for (int x = 0;x < size;x++){
-//				if (blockMatrix[y, x]){
-//					Instantiate(cube, new Vector3(xPos + x, yPos - y, 0), Quaternion.identity);
-//					fields[xPos + x, yPos - y] = true;
-//				}
-//			}
-//		}
-//		StartCoroutine(CheckRows(yPos - size, size));
-//		
-//	}
-//	
-//	IEnumerator CheckRows(int yStart, int size){
-//		yield return null;
+	public void PlaceSquareCube(bool[,,] matrix, float zPos, float yPos, float xPos) {
+
+		Debug.Log ("Place Square Cube: z:" + zPos + " y: " + yPos + " x: " + xPos);
+
+		int size = matrix.GetLength(0);
+
+		for (int y = 0; y < size; y++) {
+			for (int z = 0; z < size; z++) {
+				for (int x = 0; x < size; x++) {
+					if (matrix[z, y, x]) {
+						float fx = xPos + x - ((float)size * 0.5f) + 0.5f;
+						float fy = yPos + y - 0.5f;
+						float fz = zPos + z - ((float)size * 0.5f) + 0.5f;
+
+						string key = Mathf.FloorToInt(fz) + "-" + Mathf.FloorToInt(fy) + "-" + Mathf.FloorToInt(fx);
+
+						Instantiate(cube, new Vector3(fx, fy, fz), Quaternion.identity);
+						posFields [key] = true;
+					}
+				}
+			}
+		}
+
+		StartCoroutine(CheckRows(yPos - size, size));
+	}
+
+	IEnumerator CheckRows(float yStart, float size){
+		yield return null;
 //		if (yStart < 1)yStart = 1;
 //		int count = 1;
 //		for (int y = yStart;y < yStart + size;y++){
@@ -186,8 +249,8 @@ public class SquaresManager : MonoBehaviour {
 //				count++;
 //			}
 //		}
-//		CreateBlock(blockRandom);
-//	}
+		CreateBlock(2);
+	}
 //	
 //	IEnumerator SetRows(int yStart){
 //		for (int y = yStart;y < fieldHeight - 1;y++){
