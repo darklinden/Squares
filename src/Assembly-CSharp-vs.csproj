@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\CameraControl.cs" />
-     <Compile Include="Assets\Scripts\DebugAssert.cs" />
+     <Compile Include="Assets\Scripts\Dbg.cs" />
      <Compile Include="Assets\Scripts\Square.cs" />
      <Compile Include="Assets\Scripts\SquaresManager.cs" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />

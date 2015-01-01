@@ -140,26 +140,27 @@ public class SquaresManager : MonoBehaviour {
 //		//Camera.main.transform.position = new Vector3(fieldWidth/2, fieldHeight/2, -16.0f);
 //		
 
-		CreateBlock(2);
+		CreateBlock(1);
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
 	}
 
-	public int GetFieldWidth(){
+	public int GetFieldWidth() {
 		return _fieldWidth;
 	}
 	
-	public int GetFieldHeight(){
+	public int GetFieldHeight() {
 		return _fieldHeight;
 	}
 	
-	public int GetBlockRandom(){
+	public int GetBlockRandom() {
 		return blockRandom;
 	}
 	
-	void CreateBlock(int random){
+	void CreateBlock(int random) {
 		GameObject o = (GameObject)Instantiate(blocks[random]);
 //		blockRandom = Random.Range(0, blocks.Length);
 //		nextBlock = blocks[blockRandom];
@@ -169,11 +170,11 @@ public class SquaresManager : MonoBehaviour {
 //		nextblock = nextB.size;
 	}
 
+
 	/*
 	 *  return true if overlaped
 	 */
-	public bool CheckSquareOverlap(bool [,,] matrix, float zPos, float yPos, float xPos){
-
+	public bool CheckSquareOverlap(bool [,,] matrix, float zPos, float yPos, float xPos) {
 		int size = matrix.GetLength(0);
 
 		for (int y = 0; y < size; y++) {
@@ -187,6 +188,8 @@ public class SquaresManager : MonoBehaviour {
 					string key = iz + "-" + iy + "-" + ix;
 
 					if (matrix [z, (size - 1) - y, x]) {
+
+						Dbg.Box(new Vector3(ix, iy, iz));
 
 						if (!posFields.ContainsKey(key)) {
 							Debug.Log("Position Out of Range: z: " + z + " y: " + y + " x: " + x + " iz: " + iz + " iy: " + iy + " ix: " + ix);
@@ -204,9 +207,8 @@ public class SquaresManager : MonoBehaviour {
 
 		return false;
 	}
-//	
-	public void PlaceSquareCube(bool[,,] matrix, float zPos, float yPos, float xPos) {
 
+	public void PlaceSquareCube(bool[,,] matrix, float zPos, float yPos, float xPos) {
 		Debug.Log ("Place Square Cube: z:" + zPos + " y: " + yPos + " x: " + xPos);
 
 		int size = matrix.GetLength(0);
@@ -215,9 +217,13 @@ public class SquaresManager : MonoBehaviour {
 			for (int z = 0; z < size; z++) {
 				for (int x = 0; x < size; x++) {
 					if (matrix[z, y, x]) {
-						float fx = xPos + x - ((float)size * 0.5f) + 0.5f;
-						float fy = yPos + y - 0.5f;
-						float fz = zPos + z - ((float)size * 0.5f) + 0.5f;
+						float fx = xPos + x - ((float)size * 0.5f) - 0.5f;
+						float fy = yPos + y - ((float)size * 0.5f);
+						float fz = zPos + z - ((float)size * 0.5f) - 0.5f;
+
+//						int ix = Mathf.FloorToInt (xPos + x - ((float)size * 0.5f));
+//						int iy = Mathf.FloorToInt (yPos + y - ((float)size * 0.5f));
+//						int iz = Mathf.FloorToInt (zPos + z - ((float)size * 0.5f));
 
 						string key = Mathf.FloorToInt(fz) + "-" + Mathf.FloorToInt(fy) + "-" + Mathf.FloorToInt(fx);
 
@@ -231,7 +237,7 @@ public class SquaresManager : MonoBehaviour {
 		StartCoroutine(CheckRows(yPos - size, size));
 	}
 
-	IEnumerator CheckRows(float yStart, float size){
+	IEnumerator CheckRows(float yStart, float size) {
 		yield return null;
 //		if (yStart < 1)yStart = 1;
 //		int count = 1;
@@ -249,7 +255,7 @@ public class SquaresManager : MonoBehaviour {
 //				count++;
 //			}
 //		}
-		CreateBlock(2);
+		CreateBlock(1);
 	}
 //	
 //	IEnumerator SetRows(int yStart){
@@ -293,14 +299,14 @@ public class SquaresManager : MonoBehaviour {
 //		
 //	}
 //	
-	public void GameOver(){
+	public void GameOver() {
 		if (Score > PlayerPrefs.GetInt("Highest")){
 			PlayerPrefs.SetInt("Highest", Score);
 		}
 		print("Game Over!!!");
 	}
 
-	void OnGUI(){
+	void OnGUI() {
 		GUI.Label(new Rect(180, 30, 80, 40),"Score:");
 		GUI.Label(new Rect(240, 30, 100, 40),Score.ToString());
 		GUI.Label(new Rect(180, 50, 80, 40),"Highest:");

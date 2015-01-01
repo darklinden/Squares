@@ -32,7 +32,7 @@ public class Square : MonoBehaviour {
 	
 		Dbg.Assert (size >= 2, "Square must have at least two pages");
 
-		Dbg.Assert(size > SquaresManager.manager.maxBlockSize, "Blocks must not be larger than " + SquaresManager.manager.maxBlockSize);
+		Dbg.Assert(size < SquaresManager.manager.maxBlockSize, "Blocks must not be larger than " + SquaresManager.manager.maxBlockSize);
 
 		Color [] colorpool = {Color.black, Color.blue, Color.cyan, Color.gray,
 			Color.green, Color.grey, Color.magenta, Color.red, Color.white, Color.yellow };
@@ -96,7 +96,7 @@ public class Square : MonoBehaviour {
 		                                 SquaresManager.manager.GetFieldHeight() - childSize - size, 
 		                                 -(SquaresManager.manager.GetFieldWidth() - size) / 2.0f);
 		xPosition = transform.position.x;
-		yPosition = transform.position.y - (size * 0.5f) + 0.5f;
+		yPosition = transform.position.y;
 		zPosition = transform.position.z;
 		fallSpeed = SquaresManager.manager.blockNormalFallSpeed;
 		
@@ -111,37 +111,31 @@ public class Square : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
-	IEnumerator Fall(){
-		while (true){
+	IEnumerator Fall() {
+		while (true) {
 
 			yPosition--;
-			Debug.Log("yPosition:"+ yPosition);
-#warning
-			if (SquaresManager.manager.CheckSquareOverlap(squareMatrix, zPosition, yPosition, xPosition)){
+
+			if (SquaresManager.manager.CheckSquareOverlap(squareMatrix, zPosition, yPosition, xPosition)) {
+				Debug.Log("Place Square: " + transform.position + " at: z: " + zPosition + " y:" + (yPosition + 1) + " x: " + xPosition);
 				SquaresManager.manager.PlaceSquareCube(squareMatrix, zPosition, yPosition + 1, xPosition);
 				Destroy(gameObject);
-				Debug.Log("Place Cube yPosition:" + (yPosition + 1));
 				break;
 			}
 			
-			for (float i = yPosition + 1;i > yPosition;i -= Time.deltaTime * fallSpeed){
-
-//				Debug.Log("i: "+ i + " fallSpeed: " + fallSpeed);
-				transform.position = new Vector3(transform.position.x, i - childSize, transform.position.z);
-				/*foreach(Transform child in transform){
-					print(child.transform.position);
-				}*/
+			for (float i = yPosition + 1; i > yPosition;i -= Time.deltaTime * fallSpeed) {
+				transform.position = new Vector3(transform.position.x, i, transform.position.z);
 				yield return null;
 			}
 			
 		}
 	}
 	
-	IEnumerator MoveSquare(int distanceX, int distanceZ){
-		if (!SquaresManager.manager.CheckSquareOverlap(squareMatrix, zPosition + distanceZ, yPosition, xPosition + distanceX)){
+	IEnumerator MoveSquare(int distanceX, int distanceZ) {
+		if (!SquaresManager.manager.CheckSquareOverlap(squareMatrix, zPosition + distanceZ, yPosition, xPosition + distanceX)) {
 			transform.position = new Vector3(transform.position.x + distanceX, 
 			                                 transform.position.y,
 			                                 transform.position.z + distanceZ);
@@ -156,17 +150,8 @@ public class Square : MonoBehaviour {
 		for (int z = 0; z < size; z++) {
 			for (int y = 0; y < size; y++) {
 				for (int x = 0; x < size; x++) {
-					GameObject t = GameObject.Find ("z-" + z + "-y-" + y + "-x-" + x);
-
-					if (t) {
-						Destroy (t);
-					}
-
 					if (squareMatrix[z, y, x]) {
-						squareMatrix [z, y, x] = true;
-						Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (pos.x + x - childSize, pos.y + childSize - y, pos.z + z - childSize), Quaternion.identity);
-						cube.renderer.material.color = cubeColor;
-						cube.name = "z-" + z + "-y-" + y + "-x-" + x;
+						Dbg.Box (new Vector3 (pos.x + x - childSize - .5f, pos.y + childSize - y - .5f, pos.z + z - childSize - .5f));
 					}
 				}
 			}
@@ -189,7 +174,7 @@ public class Square : MonoBehaviour {
 				}
 			}
 
-			if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, zPosition, yPosition, xPosition)){
+			if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, zPosition, yPosition, xPosition)) {
 				transform.Rotate(90, 0, 0);
 				System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 			}
@@ -202,7 +187,7 @@ public class Square : MonoBehaviour {
 				if (tmpzPos - (size * 0.5f) < SquaresManager.manager.frontWall.position.z) { tmpzPos = SquaresManager.manager.frontWall.position.z + (size * 0.5f); }
 				if (tmpzPos + (size * 0.5f) > SquaresManager.manager.backWall.position.z) { tmpzPos = SquaresManager.manager.backWall.position.z - (size * 0.5f); }
 
-				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)){
+				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)) {
 					transform.position = new Vector3(tmpxPos, 
 					                                 transform.position.y,
 					                                 tmpzPos);
@@ -239,7 +224,7 @@ public class Square : MonoBehaviour {
 				if (tmpzPos - (size * 0.5f) < SquaresManager.manager.frontWall.position.z) { tmpzPos = SquaresManager.manager.frontWall.position.z + (size * 0.5f); }
 				if (tmpzPos + (size * 0.5f) > SquaresManager.manager.backWall.position.z) { tmpzPos = SquaresManager.manager.backWall.position.z - (size * 0.5f); }
 				
-				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)){
+				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)) {
 					transform.position = new Vector3(tmpxPos, 
 					                                 transform.position.y,
 					                                 tmpzPos);
@@ -276,7 +261,7 @@ public class Square : MonoBehaviour {
 				if (tmpzPos - (size * 0.5f) < SquaresManager.manager.frontWall.position.z) { tmpzPos = SquaresManager.manager.frontWall.position.z + (size * 0.5f); }
 				if (tmpzPos + (size * 0.5f) > SquaresManager.manager.backWall.position.z) { tmpzPos = SquaresManager.manager.backWall.position.z - (size * 0.5f); }
 				
-				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)){
+				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)) {
 					transform.position = new Vector3(tmpxPos, 
 					                                 transform.position.y,
 					                                 tmpzPos);
@@ -313,7 +298,7 @@ public class Square : MonoBehaviour {
 				if (tmpzPos - (size * 0.5f) < SquaresManager.manager.frontWall.position.z) { tmpzPos = SquaresManager.manager.frontWall.position.z + (size * 0.5f); }
 				if (tmpzPos + (size * 0.5f) > SquaresManager.manager.backWall.position.z) { tmpzPos = SquaresManager.manager.backWall.position.z - (size * 0.5f); }
 				
-				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)){
+				if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, tmpzPos, yPosition, tmpxPos)) {
 					transform.position = new Vector3(tmpxPos, 
 					                                 transform.position.y,
 					                                 tmpzPos);
@@ -330,10 +315,10 @@ public class Square : MonoBehaviour {
 		}
 	}
 	
-	IEnumerator CheckInput(){
+	IEnumerator CheckInput() {
 		
-		while(true){
-			if (Input.GetKeyDown(KeyCode.UpArrow)){
+		while(true) {
+			if (Input.GetKeyDown(KeyCode.UpArrow)) {
 				switch (CameraControl.controller.horizontalState) {
 				case CameraControl.CameraHorizontalState.Left:
 					yield return StartCoroutine(MoveSquare(1, 0));
@@ -351,7 +336,7 @@ public class Square : MonoBehaviour {
 
 			}
 
-			if (Input.GetKeyDown(KeyCode.DownArrow)){
+			if (Input.GetKeyDown(KeyCode.DownArrow)) {
 				switch (CameraControl.controller.horizontalState) {
 				case CameraControl.CameraHorizontalState.Left:
 					yield return StartCoroutine(MoveSquare(-1, 0));
@@ -368,7 +353,7 @@ public class Square : MonoBehaviour {
 				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.LeftArrow)){
+			if (Input.GetKeyDown(KeyCode.LeftArrow)) {
 				switch (CameraControl.controller.horizontalState) {
 				case CameraControl.CameraHorizontalState.Left:
 					yield return StartCoroutine(MoveSquare(0, 1));
@@ -385,7 +370,7 @@ public class Square : MonoBehaviour {
 				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.RightArrow)){
+			if (Input.GetKeyDown(KeyCode.RightArrow)) {
 				switch (CameraControl.controller.horizontalState) {
 				case CameraControl.CameraHorizontalState.Left:
 					yield return StartCoroutine(MoveSquare(0, -1));
