@@ -4,10 +4,16 @@ using System.Collections;
 public class Square : MonoBehaviour {
 
 	public int size = 4;
+	public string[] page0 = {"0000", "0000", "0000", "0000"};
 	public string[] page1 = {"0000", "1111", "0000", "0000"};
 	public string[] page2 = {"0000", "0000", "0000", "0000"};
 	public string[] page3 = {"0000", "0000", "0000", "0000"};
 	public string[] page4 = {"0000", "0000", "0000", "0000"};
+	public string[] page5 = {"0000", "0000", "0000", "0000"};
+	public string[] page6 = {"0000", "0000", "0000", "0000"};
+	public string[] page7 = {"0000", "0000", "0000", "0000"};
+	public string[] page8 = {"0000", "0000", "0000", "0000"};
+	public string[] page9 = {"0000", "0000", "0000", "0000"};
 
 	private bool[,,] squareMatrix;
 
@@ -32,8 +38,6 @@ public class Square : MonoBehaviour {
 	
 		Dbg.Assert (size >= 2, "Square must have at least two pages");
 
-		Dbg.Assert(size < SquaresManager.manager.maxBlockSize, "Blocks must not be larger than " + SquaresManager.manager.maxBlockSize);
-
 		Color [] colorpool = {Color.black, Color.blue, Color.cyan, Color.gray,
 			Color.green, Color.grey, Color.magenta, Color.red, Color.white, Color.yellow };
 		cubeColor = colorpool [Random.Range (0, colorpool.Length)];
@@ -49,7 +53,7 @@ public class Square : MonoBehaviour {
 					switch (z) {
 					case 0:
 					{
-						if (page1 [y] [x] == '1') {
+						if (page0 [y] [x] == '1') {
 							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
@@ -60,7 +64,7 @@ public class Square : MonoBehaviour {
 						break;
 					case 1:
 					{
-						if (page2 [y] [x] == '1') {
+						if (page1 [y] [x] == '1') {
 							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
@@ -71,7 +75,7 @@ public class Square : MonoBehaviour {
 						break;
 					case 2:
 					{
-						if (page3 [y] [x] == '1') {
+						if (page2 [y] [x] == '1') {
 							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
@@ -82,7 +86,73 @@ public class Square : MonoBehaviour {
 						break;
 					case 3:
 					{
+						if (page3 [y] [x] == '1') {
+							squareMatrix [z, size - 1 - y, x] = true;
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
+							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
+						}
+					}
+						break;
+					case 4:
+					{
 						if (page4 [y] [x] == '1') {
+							squareMatrix [z, size - 1 - y, x] = true;
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
+							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
+						}
+					}
+						break;
+					case 5:
+					{
+						if (page5 [y] [x] == '1') {
+							squareMatrix [z, size - 1 - y, x] = true;
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
+							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
+						}
+					}
+						break;
+					case 6:
+					{
+						if (page6 [y] [x] == '1') {
+							squareMatrix [z, size - 1 - y, x] = true;
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
+							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
+						}
+					}
+						break;
+					case 7:
+					{
+						if (page7 [y] [x] == '1') {
+							squareMatrix [z, size - 1 - y, x] = true;
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
+							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
+						}
+					}
+						break;
+					case 8:
+					{
+						if (page8 [y] [x] == '1') {
+							squareMatrix [z, size - 1 - y, x] = true;
+							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
+							cube.renderer.material.color = cubeColor;
+							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
+						}
+					}
+						break;
+					case 9:
+					{
+						if (page9 [y] [x] == '1') {
 							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;

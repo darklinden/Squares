@@ -13,8 +13,6 @@ public class SquaresManager : MonoBehaviour {
 	public Transform rightWall;
 	public Transform frontWall;
 	public Transform backWall;
-
-	public int maxBlockSize = 4;
 	public int _fieldWidth = 10;
 	public int _fieldHeight = 13;
 	public float cubeSizeWidth = 1.0f;
@@ -22,19 +20,16 @@ public class SquaresManager : MonoBehaviour {
 	public float blockDropSpeed = 30f;
 	public Texture2D cubeTexture;
 	
-	private int fieldWidth;
-	private int fieldHeight;
+//	private int fieldWidth;
+//	private int fieldHeight;
 	private bool[,,] fields;
 	private Dictionary<string, bool> posFields;
 	private int[] cubeYposition;
 	private Transform[] cubeTransforms;
-//	private float xOffset;
-//	private float yOffset;
-//	private float zOffset;
 
 	private int clearTimes;
-//	private float addSpeed = .3f;
-//	private int TimeToAddSpeed = 10;
+	private float addSpeed = .3f;
+	private int TimeToAddSpeed = 10;
 	
 	private int Score = 0;
 	private int Highest = 0;
@@ -49,24 +44,24 @@ public class SquaresManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 	
-		if (manager == null){
+		if (manager == null) {
 			manager = this;
 		}
 		
-		if (PlayerPrefs.HasKey("Highest")){
+		if (PlayerPrefs.HasKey("Highest")) {
 			Highest = PlayerPrefs.GetInt("Highest");
 		}
 		else{
 			PlayerPrefs.SetInt("Highest", 0);
 		}
 		
-		blockRandom = 1;//Random.Range(0, blocks.Length);
+		blockRandom = 0;//Random.Range(0, blocks.Length);
 //		
-		fieldWidth = _fieldWidth + 2;
-		fieldHeight = _fieldHeight;
-		fields = new bool[fieldWidth, fieldHeight, fieldWidth];
-//		cubeYposition = new int[fieldWidth, fieldHeight, fieldWidth];
-//		cubeTransforms = new Transform[fieldWidth, fieldHeight, fieldWidth];
+//		fieldWidth = _fieldWidth + 2;
+//		fieldHeight = _fieldHeight;
+//		fields = new bool[fieldWidth, fieldHeight, fieldWidth];
+		cubeYposition = new int[_fieldWidth *  _fieldHeight * _fieldWidth];
+		cubeTransforms = new Transform[_fieldWidth * _fieldHeight * _fieldWidth];
 //		
 		posFields = new Dictionary<string, bool> ();
 
@@ -95,13 +90,13 @@ public class SquaresManager : MonoBehaviour {
 //			}
 //		}
 
-		Debug.Log ("ground:" + ground.transform.position.y);
-		Debug.Log ("left:" + leftWall.transform.position.x);
-		Debug.Log ("right:" + rightWall.transform.position.x);
-		Debug.Log ("front:" + frontWall.transform.position.z);
-		Debug.Log ("back:" + backWall.transform.position.z);
+//		Debug.Log ("ground:" + ground.transform.position.y);
+//		Debug.Log ("left:" + leftWall.transform.position.x);
+//		Debug.Log ("right:" + rightWall.transform.position.x);
+//		Debug.Log ("front:" + frontWall.transform.position.z);
+//		Debug.Log ("back:" + backWall.transform.position.z);
 
-		for (float y = ground.transform.position.y; y < fieldHeight; y += 1f) {
+		for (float y = ground.transform.position.y; y < _fieldHeight; y += 1f) {
 			for (float z = frontWall.transform.position.z; z < backWall.transform.position.z; z += 1f) {
 				for (float x = leftWall.transform.position.x; x < rightWall.transform.position.x; x += 1f) {
 
@@ -194,10 +189,10 @@ public class SquaresManager : MonoBehaviour {
 						float fy = iy + .5f;
 						float fz = iz + .5f;
 
-						Dbg.Box(new Vector3(fx, fy, fz));
+//						Dbg.Box(new Vector3(fx, fy, fz));
 
 						if (!posFields.ContainsKey(key)) {
-							Debug.Log("Position Out of Range: z: " + z + " y: " + y + " x: " + x + " iz: " + iz + " iy: " + iy + " ix: " + ix);
+//							Debug.Log("Position Out of Range: z: " + z + " y: " + y + " x: " + x + " iz: " + iz + " iy: " + iy + " ix: " + ix);
 							return true;
 						}
 
@@ -240,73 +235,111 @@ public class SquaresManager : MonoBehaviour {
 			}
 		}
 
-		StartCoroutine(CheckRows(yPos - size, size));
+		StartCoroutine(CheckFloorFull(yPos, size));
 	}
 
-	IEnumerator CheckRows(float yStart, float size) {
+	IEnumerator CheckFloorFull(float yPos, float size) {
+
 		yield return null;
-//		if (yStart < 1)yStart = 1;
-//		int count = 1;
-//		for (int y = yStart;y < yStart + size;y++){
-//			int x;
-//			for (x = maxBlockSize;x < fieldWidth - maxBlockSize;x++){
-//				if (!fields[x, y]){
-//					break;
-//				}
-//			}
-//			if (x == fieldWidth - maxBlockSize){
-//				yield return StartCoroutine(SetRows(y));
-//				Score += 10 * count;
-//				y--;
-//				count++;
-//			}
-//		}
+
+		int count = 1;
+
+		for (float y = yPos - ((float)size * 0.5f) + .5f; y < yPos + ((float)size * 0.5f) - .5f; y += 1f) {
+
+			bool full = true;
+
+			for (float z = frontWall.transform.position.z; z < backWall.transform.position.z; z += 1f) {
+				for (float x = leftWall.transform.position.x; x < rightWall.transform.position.x; x += 1f) {
+					
+					string key = Mathf.FloorToInt(z) + "-" + Mathf.FloorToInt(y) + "-" + Mathf.FloorToInt(x);
+
+					if (!posFields.ContainsKey(key)) {
+						Debug.Log ("No Such Pos: " + key);
+						full = false;
+					}
+					else {
+						if (!posFields[key]) {
+							full = false;
+							break;
+						}
+					}
+				}
+
+				if (!full) break;
+			}
+
+			if (full) {
+				yield return StartCoroutine(RemoveFloor(y));
+				Score += 10 * count;
+				y -= 1f;
+				count++;
+			}
+		}
+
 		CreateBlock(blockRandom);
 	}
-//	
-//	IEnumerator SetRows(int yStart){
-//		for (int y = yStart;y < fieldHeight - 1;y++){
-//			for (int x = maxBlockSize;x < fieldWidth - maxBlockSize;x++){
-//				fields[x, y] = fields[x, y + 1];
-//			}
-//		}
-//		
-//		for (int x = maxBlockSize;x < fieldWidth - maxBlockSize;x++){
-//			fields[x, fieldHeight - 1] = false;
-//		}
-//		
-//		var cubes = GameObject.FindGameObjectsWithTag("Cube");
-//		int cubeToMove = 0;
-//		for (int i = 0;i < cubes.Length;i++){
-//			GameObject cube = cubes[i];
-//			if (cube.transform.position.y > yStart){
-//				cubeYposition[cubeToMove] = (int)(cube.transform.position.y);
-//				cubeTransforms[cubeToMove++] = cube.transform;
-//			}
-//			else if (cube.transform.position.y == yStart){
-//				Destroy(cube);
-//			}
-//		}
-//		
-//		float t = 0;
-//		while (t <= 1f){
-//			t += Time.deltaTime * 5f;
-//			for(int i = 0;i < cubeToMove;i++){
-//				cubeTransforms[i].position = new Vector3(cubeTransforms[i].position.x, Mathf.Lerp(cubeYposition[i], cubeYposition[i] - 1, t),
-//					cubeTransforms[i].position.z);
-//			}
-//		    yield return null;
-//		}
-//		
-//		if (++clearTimes == TimeToAddSpeed){
-//			blockNormalFallSpeed += addSpeed;
-//			clearTimes = 0;
-//		}
-//		
-//	}
-//	
+	
+	IEnumerator RemoveFloor(float yPos) {
+
+		Debug.Log ("RemoveFloor: " + yPos);
+		Debug.Break ();
+
+		for (float y = yPos; y < _fieldHeight; y += 1f) {
+			for (float z = frontWall.transform.position.z; z < backWall.transform.position.z; z += 1f) {
+				for (float x = leftWall.transform.position.x; x < rightWall.transform.position.x; x += 1f) {
+
+					int ix = Mathf.FloorToInt(x);
+					int iy = Mathf.FloorToInt(y);
+					int iz = Mathf.FloorToInt(z);
+
+					string keyup = iz + "-" + (iy + 1) + "-" + ix;
+					string keydown = iz + "-" + iy + "-" + ix;
+
+					if (posFields.ContainsKey(keydown)) {
+						if (posFields.ContainsKey(keyup)) {
+							posFields[keydown] = posFields[keyup];
+						}
+						else {
+							posFields[keydown] = false;
+						}
+					}
+				}
+			}
+		}
+		
+		var cubes = GameObject.FindGameObjectsWithTag("Cube");
+		int cubeToMove = 0;
+		for (int i = 0;i < cubes.Length;i++) {
+			GameObject cube = cubes[i];
+
+			if (Mathf.FloorToInt(cube.transform.position.y) > Mathf.FloorToInt(yPos)) {
+				cubeYposition[cubeToMove] = (int)(cube.transform.position.y);
+				cubeTransforms[cubeToMove++] = cube.transform;
+			}
+			else if (Mathf.FloorToInt(cube.transform.position.y) == Mathf.FloorToInt(yPos)) {
+				Dbg.Box(cube.transform.position);
+				Destroy(cube);
+			}
+		}
+		
+		float t = 0;
+		while (t <= 1f) {
+			t += Time.deltaTime * 5f;
+			for(int i = 0;i < cubeToMove;i++) {
+				cubeTransforms[i].position = new Vector3(cubeTransforms[i].position.x, Mathf.Lerp(cubeYposition[i], cubeYposition[i] - 1, t),
+					cubeTransforms[i].position.z);
+			}
+		    yield return null;
+		}
+		
+		if (++clearTimes == TimeToAddSpeed) {
+			blockNormalFallSpeed += addSpeed;
+			clearTimes = 0;
+		}
+	}
+	
 	public void GameOver() {
-		if (Score > PlayerPrefs.GetInt("Highest")){
+		if (Score > PlayerPrefs.GetInt("Highest")) {
 			PlayerPrefs.SetInt("Highest", Score);
 		}
 		print("Game Over!!!");
@@ -318,9 +351,9 @@ public class SquaresManager : MonoBehaviour {
 		GUI.Label(new Rect(180, 50, 80, 40),"Highest:");
 		GUI.Label(new Rect(240, 50, 80, 40),Highest.ToString());
 		
-//		for (int y = 0;y < nextSize;y++){
-//			for (int x = 0;x < nextSize;x++){
-//				if (nextblock[y][x] == '1'){
+//		for (int y = 0;y < nextSize;y++) {
+//			for (int x = 0;x < nextSize;x++) {
+//				if (nextblock[y][x] == '1') {
 //					GUI.Button(new Rect(180 + 30 * x, 100 + 30 * y, 30, 30), cubeTexture);
 //				}
 //			}
