@@ -175,6 +175,7 @@ public class SquaresManager : MonoBehaviour {
 	 *  return true if overlaped
 	 */
 	public bool CheckSquareOverlap(bool [,,] matrix, float zPos, float yPos, float xPos) {
+
 		int size = matrix.GetLength(0);
 
 		for (int y = 0; y < size; y++) {
@@ -189,9 +190,9 @@ public class SquaresManager : MonoBehaviour {
 
 					if (matrix [z, y, x]) {
 
-						float fx = xPos + x - ((float)size * 0.5f) + .5f;
-						float fy = yPos + y - ((float)size * 0.5f);
-						float fz = zPos + z - ((float)size * 0.5f) + .5f;
+						float fx = ix + .5f;
+						float fy = iy + .5f;
+						float fz = iz + .5f;
 
 						Dbg.Box(new Vector3(fx, fy, fz));
 
@@ -213,6 +214,7 @@ public class SquaresManager : MonoBehaviour {
 	}
 
 	public void PlaceSquareCube(bool[,,] matrix, float zPos, float yPos, float xPos) {
+
 		Debug.Log ("Place Square Cube: z:" + zPos + " y: " + yPos + " x: " + xPos);
 
 		int size = matrix.GetLength(0);
@@ -222,7 +224,7 @@ public class SquaresManager : MonoBehaviour {
 				for (int x = 0; x < size; x++) {
 					if (matrix[z, y, x]) {
 						float fx = xPos + x - ((float)size * 0.5f) + .5f;
-						float fy = yPos + y - ((float)size * 0.5f);
+						float fy = yPos + y - ((float)size * 0.5f) + .5f;
 						float fz = zPos + z - ((float)size * 0.5f) + .5f;
 
 //						int ix = Mathf.FloorToInt (xPos + x - ((float)size * 0.5f));

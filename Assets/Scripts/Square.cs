@@ -97,7 +97,7 @@ public class Square : MonoBehaviour {
 		}
 
 		transform.position = new Vector3((SquaresManager.manager.GetFieldWidth() - size) / 2.0f, 
-		                                 SquaresManager.manager.GetFieldHeight() - childSize - size, 
+		                                 SquaresManager.manager.GetFieldHeight() - size - (size % 2 == 0 ? 0f : 0.5f), 
 		                                 -(SquaresManager.manager.GetFieldWidth() - size) / 2.0f);
 		xPosition = transform.position.x;
 		yPosition = transform.position.y;
@@ -130,7 +130,7 @@ public class Square : MonoBehaviour {
 				break;
 			}
 			
-			for (float i = yPosition + 1; i > yPosition;i -= Time.deltaTime * fallSpeed) {
+			for (float i = yPosition + 1; i > yPosition; i -= Time.deltaTime * fallSpeed) {
 				transform.position = new Vector3(transform.position.x, i, transform.position.z);
 				yield return null;
 			}
