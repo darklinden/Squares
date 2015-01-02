@@ -13,7 +13,7 @@ public class Square : MonoBehaviour {
 
 	private float halfSize;
 	private float halfSizeFloat;
-	public float childSize;
+	private float childSize;
 	private float xPosition;
 	private float yPosition;
 	private float zPosition;
@@ -50,40 +50,44 @@ public class Square : MonoBehaviour {
 					case 0:
 					{
 						if (page1 [y] [x] == '1') {
-							squareMatrix [z, y, x] = true;
+							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
 						}
 					}
 						break;
 					case 1:
 					{
 						if (page2 [y] [x] == '1') {
-							squareMatrix [z, y, x] = true;
+							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
 						}
 					}
 						break;
 					case 2:
 					{
 						if (page3 [y] [x] == '1') {
-							squareMatrix [z, y, x] = true;
+							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
 						}
 					}
 						break;
 					case 3:
 					{
 						if (page4 [y] [x] == '1') {
-							squareMatrix [z, y, x] = true;
+							squareMatrix [z, size - 1 - y, x] = true;
 							Transform cube = (Transform)Instantiate (SquaresManager.manager.cube, new Vector3 (x - childSize, childSize - y, z - childSize), Quaternion.identity);
 							cube.renderer.material.color = cubeColor;
 							cube.parent = transform;
+							cube.name = z + "-" + (size - 1 - y) + "-" + x;
 						}
 					}
 						break;
@@ -161,6 +165,8 @@ public class Square : MonoBehaviour {
 	
 	void RotateSquare(SquareRotate rotate) {
 
+		Debug.Log ("Rotation: " + transform.rotation);
+
 		var tempMatrix = new bool[size, size, size];
 
 		switch (rotate) {
@@ -169,13 +175,13 @@ public class Square : MonoBehaviour {
 			for (int x = 0; x < size; x++) {
 				for (int z = 0; z < size; z++) {
 					for (int y = 0; y < size; y++) {
-						tempMatrix[z, y, x] = squareMatrix[y, (size - 1) - z, x];
+						tempMatrix[z, y, x] = squareMatrix[(size - 1) - y, z, x];
 					}
 				}
 			}
 
 			if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, zPosition, yPosition, xPosition)) {
-				transform.Rotate(90, 0, 0);
+				transform.Rotate(90, 0, 0, Space.World);
 				System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 			}
 			else {
@@ -193,7 +199,7 @@ public class Square : MonoBehaviour {
 					                                 tmpzPos);
 					xPosition = tmpxPos;
 					zPosition = tmpzPos;
-					transform.Rotate(90, 0, 0);
+					transform.Rotate(90, 0, 0, Space.World);
 					System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 				}
 			}
@@ -212,7 +218,7 @@ public class Square : MonoBehaviour {
 			}
 
 			if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, zPosition, yPosition, xPosition)) {
-				transform.Rotate(0, 90, 0);
+				transform.Rotate(0, 90, 0, Space.World);
 				System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 			}
 			else {
@@ -230,7 +236,7 @@ public class Square : MonoBehaviour {
 					                                 tmpzPos);
 					xPosition = tmpxPos;
 					zPosition = tmpzPos;
-					transform.Rotate(0, 90, 0);
+					transform.Rotate(0, 90, 0, Space.World);
 					System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 				}
 			}
@@ -243,13 +249,13 @@ public class Square : MonoBehaviour {
 			for (int z = 0; z < size; z++) {
 				for (int y = 0; y < size; y++) {
 					for (int x = 0; x < size; x++) {
-						tempMatrix[z, y, x] = squareMatrix[z, x, (size - 1) - y];
+						tempMatrix[z, y, x] = squareMatrix[z, (size - 1) - x, y];
 					}
 				}
 			}
 
 			if (!SquaresManager.manager.CheckSquareOverlap(tempMatrix, zPosition, yPosition, xPosition)) {
-				transform.Rotate(0, 0, 90);
+				transform.Rotate(0, 0, 90, Space.World);
 				System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 			}
 			else {
@@ -267,7 +273,7 @@ public class Square : MonoBehaviour {
 					                                 tmpzPos);
 					xPosition = tmpxPos;
 					zPosition = tmpzPos;
-					transform.Rotate(0, 0, 90);
+					transform.Rotate(0, 0, 90, Space.World);
 					System.Array.Copy(tempMatrix, squareMatrix, size * size * size);
 				}
 			}
@@ -396,9 +402,9 @@ public class Square : MonoBehaviour {
 				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.W)) {
-				RotateSquare(SquareRotate.SquareRotate4DX);
-			}
+//			if (Input.GetKeyDown(KeyCode.W)) {
+//				RotateSquare(SquareRotate.SquareRotate4DX);
+//			}
 
 			if (Input.GetKeyDown(KeyCode.S)) {
 				RotateSquare(SquareRotate.SquareRotateY);

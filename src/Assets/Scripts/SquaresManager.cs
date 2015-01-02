@@ -60,7 +60,7 @@ public class SquaresManager : MonoBehaviour {
 			PlayerPrefs.SetInt("Highest", 0);
 		}
 		
-		blockRandom = Random.Range(0, blocks.Length);
+		blockRandom = 1;//Random.Range(0, blocks.Length);
 //		
 		fieldWidth = _fieldWidth + 2;
 		fieldHeight = _fieldHeight;
@@ -140,7 +140,7 @@ public class SquaresManager : MonoBehaviour {
 //		//Camera.main.transform.position = new Vector3(fieldWidth/2, fieldHeight/2, -16.0f);
 //		
 
-		CreateBlock(1);
+		CreateBlock(blockRandom);
 	}
 	
 	// Update is called once per frame
@@ -187,9 +187,13 @@ public class SquaresManager : MonoBehaviour {
 
 					string key = iz + "-" + iy + "-" + ix;
 
-					if (matrix [z, (size - 1) - y, x]) {
+					if (matrix [z, y, x]) {
 
-						Dbg.Box(new Vector3(ix, iy, iz));
+						float fx = xPos + x - ((float)size * 0.5f) + .5f;
+						float fy = yPos + y - ((float)size * 0.5f);
+						float fz = zPos + z - ((float)size * 0.5f) + .5f;
+
+						Dbg.Box(new Vector3(fx, fy, fz));
 
 						if (!posFields.ContainsKey(key)) {
 							Debug.Log("Position Out of Range: z: " + z + " y: " + y + " x: " + x + " iz: " + iz + " iy: " + iy + " ix: " + ix);
@@ -217,9 +221,9 @@ public class SquaresManager : MonoBehaviour {
 			for (int z = 0; z < size; z++) {
 				for (int x = 0; x < size; x++) {
 					if (matrix[z, y, x]) {
-						float fx = xPos + x - ((float)size * 0.5f) - 0.5f;
+						float fx = xPos + x - ((float)size * 0.5f) + .5f;
 						float fy = yPos + y - ((float)size * 0.5f);
-						float fz = zPos + z - ((float)size * 0.5f) - 0.5f;
+						float fz = zPos + z - ((float)size * 0.5f) + .5f;
 
 //						int ix = Mathf.FloorToInt (xPos + x - ((float)size * 0.5f));
 //						int iy = Mathf.FloorToInt (yPos + y - ((float)size * 0.5f));
@@ -255,7 +259,7 @@ public class SquaresManager : MonoBehaviour {
 //				count++;
 //			}
 //		}
-		CreateBlock(1);
+		CreateBlock(blockRandom);
 	}
 //	
 //	IEnumerator SetRows(int yStart){
