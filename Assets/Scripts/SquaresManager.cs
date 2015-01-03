@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;  
 using System.IO;  
 using System.Text; 
+using UnityEngine.UI;
 
 public class SquaresManager : MonoBehaviour {
 	
@@ -19,6 +20,13 @@ public class SquaresManager : MonoBehaviour {
 	public float blockNormalFallSpeed = 2f;
 	public float blockDropSpeed = 30f;
 	public Texture2D cubeTexture;
+
+	public Text TxtScore;
+	public Text TxtHighest;
+	public Button BtnRetry;
+	public RectTransform PanelGameover;
+
+	public bool gameOver = false;
 	
 //	private int fieldWidth;
 //	private int fieldHeight;
@@ -55,8 +63,9 @@ public class SquaresManager : MonoBehaviour {
 			PlayerPrefs.SetInt("Highest", 0);
 		}
 		
-		blockRandom = 0;//Random.Range(0, blocks.Length);
-//		
+		blockRandom = 6;//Random.Range(0, blocks.Length);
+
+		Score = 0;
 //		fieldWidth = _fieldWidth + 2;
 //		fieldHeight = _fieldHeight;
 //		fields = new bool[fieldWidth, fieldHeight, fieldWidth];
@@ -136,11 +145,60 @@ public class SquaresManager : MonoBehaviour {
 //		
 
 		CreateBlock(blockRandom);
+
+		if (BtnRetry) {
+			BtnRetry.onClick.AddListener( () => {RestartGame();} );
+		}
+	}
+
+	void RestartGame () {
+		Debug.Log ("Restart Game");
+
+		var cubes = GameObject.FindGameObjectsWithTag("Cube");
+
+		for (int i = 0; i < cubes.Length; i++) {
+			GameObject cube = cubes[i];
+			Dbg.Box (cube.transform.position);
+			Destroy(cube);
+		}
+
+		posFields.Clear ();
+
+		for (float y = ground.transform.position.y; y < _fieldHeight; y += 1f) {
+			for (float z = frontWall.transform.position.z; z < backWall.transform.position.z; z += 1f) {
+				for (float x = leftWall.transform.position.x; x < rightWall.transform.position.x; x += 1f) {
+					
+					int ix = Mathf.FloorToInt(x);
+					int iy = Mathf.FloorToInt(y);
+					int iz = Mathf.FloorToInt(z);
+					
+					string key = iz + "-" + iy + "-" + ix;
+					posFields[key] = false;
+				}
+			}
+		}
+
+		blockRandom = 0;//Random.Range(0, blocks.Length);
+		
+		Score = 0;
+		
+		CreateBlock(blockRandom);
+
+		if (PanelGameover.gameObject.activeSelf) {
+			PanelGameover.gameObject.SetActive(false);
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		TxtScore.text = Score.ToString ();
+		TxtHighest.text = Highest.ToString ();
 
+		if (Input.GetKey (KeyCode.Return)) {
+			if (PanelGameover.gameObject.activeSelf) {
+				RestartGame ();
+			}
+		}
 	}
 
 	public int GetFieldWidth() {
@@ -157,7 +215,7 @@ public class SquaresManager : MonoBehaviour {
 	
 	void CreateBlock(int random) {
 		GameObject o = (GameObject)Instantiate(blocks[random]);
-//		blockRandom = Random.Range(0, blocks.Length);
+		blockRandom = Random.Range(0, blocks.Length);
 //		nextBlock = blocks[blockRandom];
 //		nextB = (Square)nextBlock.GetComponent("Block");
 //		nextSize = nextB.size;
@@ -282,7 +340,7 @@ public class SquaresManager : MonoBehaviour {
 	IEnumerator RemoveFloor(float yPos) {
 
 		Debug.Log ("RemoveFloor: " + yPos);
-		Debug.Break ();
+//		Debug.Break ();
 
 		for (float y = yPos; y < _fieldHeight; y += 1f) {
 			for (float z = frontWall.transform.position.z; z < backWall.transform.position.z; z += 1f) {
@@ -342,24 +400,40 @@ public class SquaresManager : MonoBehaviour {
 		if (Score > PlayerPrefs.GetInt("Highest")) {
 			PlayerPrefs.SetInt("Highest", Score);
 		}
+
+		gameOver = true;
+
+		if (!PanelGameover.gameObject.activeSelf) {
+			PanelGameover.gameObject.SetActive(true);
+		}
 		print("Game Over!!!");
 	}
 
 	void OnGUI() {
-		GUI.Label(new Rect(180, 30, 80, 40),"Score:");
-		GUI.Label(new Rect(240, 30, 100, 40),Score.ToString());
-		GUI.Label(new Rect(180, 50, 80, 40),"Highest:");
-		GUI.Label(new Rect(240, 50, 80, 40),Highest.ToString());
-		
-//		for (int y = 0;y < nextSize;y++) {
-//			for (int x = 0;x < nextSize;x++) {
-//				if (nextblock[y][x] == '1') {
-//					GUI.Button(new Rect(180 + 30 * x, 100 + 30 * y, 30, 30), cubeTexture);
-//				}
-//			}
+
+//		GUI.Box (new Rect (20, 20, 240, 160), "");
+//
+//		var centerStyle = new GUIStyle(GUI.skin.GetStyle("Label"));;
+//		centerStyle.alignment = TextAnchor.UpperCenter;
+//		centerStyle.fontSize = 25;
+//
+//		var leftStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
+//		leftStyle.alignment = TextAnchor.MiddleLeft;
+//		leftStyle.fontSize = 18;
+//
+//		var rightStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
+//		rightStyle.alignment = TextAnchor.MiddleRight;
+//		rightStyle.fontSize = 18;
+//
+//		GUI.Label (new Rect (20, 40, 240, 40), "Panel", centerStyle);
+//		GUI.Label(new Rect(40, 80, 80, 40), "Score:", leftStyle);
+//		GUI.Label(new Rect(120, 80, 100, 40), Score.ToString(), rightStyle);
+//		GUI.Label(new Rect(40, 120, 80, 40), "Highest:", leftStyle);
+//		GUI.Label(new Rect(120, 120, 100, 40), Highest.ToString(), rightStyle);
+//
+//		if (gameOver) {
+//
 //		}
-
-
 	}
 	
 }
