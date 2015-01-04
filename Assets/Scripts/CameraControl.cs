@@ -23,6 +23,7 @@ public class CameraControl : MonoBehaviour {
 	public float RelativeDepth = 15.0f;
 	public CameraVerticalState verticalState = CameraVerticalState.Top;
 	public CameraHorizontalState horizontalState = CameraHorizontalState.Front; 
+	public GameObject relativeTop;
 	public GameObject relativeObj;
 
 	public static CameraControl controller;
@@ -116,6 +117,10 @@ public class CameraControl : MonoBehaviour {
 //				
 //				animateToCamera(verticalState, horizontalState);
 //			}
+
+			if (verticalState == CameraVerticalState.Top && relativeTop) {
+				transform.localPosition = new Vector3 (transform.localPosition.x, relativeTop.transform.localPosition.y + RelativeDepth, transform.localPosition.z);
+			}
 		}
 	}
 

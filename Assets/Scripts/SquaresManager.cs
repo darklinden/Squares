@@ -19,11 +19,13 @@ public class SquaresManager : MonoBehaviour {
 	public float cubeSizeWidth = 1.0f;
 	public float blockNormalFallSpeed = 2f;
 	public float blockDropSpeed = 30f;
-	public Texture2D cubeTexture;
+//	public Texture2D cubeTexture;
 
 	public Text TxtScore;
 	public Text TxtHighest;
 	public Button BtnRetry;
+	public Button BtnFullScreen;
+	public Text TxtBtnFullScreen;
 	public RectTransform PanelGameover;
 
 	public bool gameOver = false;
@@ -32,7 +34,7 @@ public class SquaresManager : MonoBehaviour {
 //	private int fieldHeight;
 	private bool[,,] fields;
 	private Dictionary<string, bool> posFields;
-	private int[] cubeYposition;
+	private float[] cubeYposition;
 	private Transform[] cubeTransforms;
 
 	private int clearTimes;
@@ -63,13 +65,13 @@ public class SquaresManager : MonoBehaviour {
 			PlayerPrefs.SetInt("Highest", 0);
 		}
 		
-		blockRandom = 6;//Random.Range(0, blocks.Length);
+		blockRandom = Random.Range(0, blocks.Length);
 
 		Score = 0;
 //		fieldWidth = _fieldWidth + 2;
 //		fieldHeight = _fieldHeight;
 //		fields = new bool[fieldWidth, fieldHeight, fieldWidth];
-		cubeYposition = new int[_fieldWidth *  _fieldHeight * _fieldWidth];
+		cubeYposition = new float[_fieldWidth *  _fieldHeight * _fieldWidth];
 		cubeTransforms = new Transform[_fieldWidth * _fieldHeight * _fieldWidth];
 //		
 		posFields = new Dictionary<string, bool> ();
@@ -149,6 +151,10 @@ public class SquaresManager : MonoBehaviour {
 		if (BtnRetry) {
 			BtnRetry.onClick.AddListener( () => {RestartGame();} );
 		}
+
+		if (BtnFullScreen) {
+			BtnFullScreen.onClick.AddListener( () => { FullScreen(); });
+		}
 	}
 
 	void RestartGame () {
@@ -178,7 +184,7 @@ public class SquaresManager : MonoBehaviour {
 			}
 		}
 
-		blockRandom = 0;//Random.Range(0, blocks.Length);
+		blockRandom = Random.Range(0, blocks.Length);
 		
 		Score = 0;
 		
@@ -187,6 +193,11 @@ public class SquaresManager : MonoBehaviour {
 		if (PanelGameover.gameObject.activeSelf) {
 			PanelGameover.gameObject.SetActive(false);
 		}
+	}
+
+	void FullScreen () {
+		Screen.SetResolution (Screen.currentResolution.width, Screen.currentResolution.height, true);
+		Screen.fullScreen = !Screen.fullScreen;
 	}
 	
 	// Update is called once per frame
@@ -198,6 +209,13 @@ public class SquaresManager : MonoBehaviour {
 			if (PanelGameover.gameObject.activeSelf) {
 				RestartGame ();
 			}
+		}
+
+		if (Screen.fullScreen) {
+			TxtBtnFullScreen.text = "Back To Nomal";
+		}
+		else {
+			TxtBtnFullScreen.text = "Full Screen";
 		}
 	}
 
@@ -214,7 +232,8 @@ public class SquaresManager : MonoBehaviour {
 	}
 	
 	void CreateBlock(int random) {
-		GameObject o = (GameObject)Instantiate(blocks[random]);
+//		GameObject o = (GameObject)
+		Instantiate(blocks[random]);
 		blockRandom = Random.Range(0, blocks.Length);
 //		nextBlock = blocks[blockRandom];
 //		nextB = (Square)nextBlock.GetComponent("Block");
@@ -243,10 +262,9 @@ public class SquaresManager : MonoBehaviour {
 
 					if (matrix [z, y, x]) {
 
-						float fx = ix + .5f;
-						float fy = iy + .5f;
-						float fz = iz + .5f;
-
+//						float fx = ix + .5f;
+//						float fy = iy + .5f;
+//						float fz = iz + .5f;
 //						Dbg.Box(new Vector3(fx, fy, fz));
 
 						if (!posFields.ContainsKey(key)) {
@@ -314,6 +332,7 @@ public class SquaresManager : MonoBehaviour {
 					if (!posFields.ContainsKey(key)) {
 						Debug.Log ("No Such Pos: " + key);
 						full = false;
+						break;
 					}
 					else {
 						if (!posFields[key]) {
@@ -371,7 +390,7 @@ public class SquaresManager : MonoBehaviour {
 			GameObject cube = cubes[i];
 
 			if (Mathf.FloorToInt(cube.transform.position.y) > Mathf.FloorToInt(yPos)) {
-				cubeYposition[cubeToMove] = (int)(cube.transform.position.y);
+				cubeYposition[cubeToMove] = cube.transform.position.y;
 				cubeTransforms[cubeToMove++] = cube.transform;
 			}
 			else if (Mathf.FloorToInt(cube.transform.position.y) == Mathf.FloorToInt(yPos)) {
@@ -384,7 +403,7 @@ public class SquaresManager : MonoBehaviour {
 		while (t <= 1f) {
 			t += Time.deltaTime * 5f;
 			for(int i = 0;i < cubeToMove;i++) {
-				cubeTransforms[i].position = new Vector3(cubeTransforms[i].position.x, Mathf.Lerp(cubeYposition[i], cubeYposition[i] - 1, t),
+				cubeTransforms[i].position = new Vector3(cubeTransforms[i].position.x, Mathf.Lerp(cubeYposition[i], cubeYposition[i] - 1f, t),
 					cubeTransforms[i].position.z);
 			}
 		    yield return null;

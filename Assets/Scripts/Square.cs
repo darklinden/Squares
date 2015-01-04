@@ -18,7 +18,7 @@ public class Square : MonoBehaviour {
 	private bool[,,] squareMatrix;
 
 	private float halfSize;
-	private float halfSizeFloat;
+//	private float halfSizeFloat;
 	private float childSize;
 	private float xPosition;
 	private float yPosition;
@@ -38,13 +38,15 @@ public class Square : MonoBehaviour {
 	
 		Dbg.Assert (size >= 2, "Square must have at least two pages");
 
+		CameraControl.controller.relativeTop = this.gameObject;
+
 		Color [] colorpool = {Color.black, Color.blue, Color.cyan, Color.gray,
 			Color.green, Color.grey, Color.magenta, Color.red, Color.white, Color.yellow };
 		cubeColor = colorpool [Random.Range (0, colorpool.Length)];
 
 		halfSize = (size + 1) * .5f;
 		childSize = (size - 1) * .5f;
-		halfSizeFloat = size * .5f;
+//		halfSizeFloat = size * .5f;
 		
 		squareMatrix = new bool[size, size, size];
 		for (int z = 0; z < size; z++) {
@@ -167,7 +169,7 @@ public class Square : MonoBehaviour {
 		}
 
 		transform.position = new Vector3((SquaresManager.manager.GetFieldWidth() - size) / 2.0f, 
-		                                 SquaresManager.manager.GetFieldHeight() - size - (size % 2 == 0 ? 0f : 0.5f), 
+		                                 SquaresManager.manager.GetFieldHeight() - Mathf.Floor(size / 2f) - (size % 2 == 0 ? 0f : 0.5f), 
 		                                 -(SquaresManager.manager.GetFieldWidth() - size) / 2.0f);
 		xPosition = transform.position.x;
 		yPosition = transform.position.y;
